@@ -8,7 +8,12 @@ print('here1')
 print(account_sid, auth_token, phone_dave, phone_m)
 
 # Make the call
-call = client.calls.create(to=phone_dave,  # Any phone number
-                           from_=phone_m, # Must be a valid Twilio number
-                           url="http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient")
+call = client.calls.create(
+    to=phone_dave,  # Any phone number
+    from_=phone_m, # Must be a valid Twilio number
+    url="http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient",
+    if_machine='Hangup',
+    send_digits='w5ww6ww7ww8',
+    timeout=30,
+)
 print(call.sid)
