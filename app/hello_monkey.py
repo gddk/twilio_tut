@@ -1,9 +1,13 @@
 from flask import Flask, request, redirect, render_template
 from twilio.twiml import Response
 from twilio.util import TwilioCapability
-from secret import phone_brit, phone_dave, phone_rob, phone_kenna, account_sid, auth_token
+from secret import (phone_brit, phone_dave, phone_rob, phone_kenna, account_sid, auth_token,
+                    phone_m, application_sid)
+import re
 
 application = Flask(__name__)
+caller_id = phone_m
+default_client = 'jenny'
 
 
 @application.route('/hello-monkey/', methods=['GET', 'POST'])
@@ -22,8 +26,10 @@ def hello_monkey():
     with resp.gather(numDigits=1, action="/hello-monkey/handle-key/", method="POST") as g:
         g.say('To speak to a real monkey, press 1. '
               'Press 2 to record your own monkey howl. '
+              'Press 3 to talk to customer support. '
               'Press any other key to start over.')
     return str(resp)
+
 
 @application.route("/hello-monkey/handle-key/", methods=['GET', 'POST'])
 def handle_key():
@@ -39,8 +45,11 @@ def handle_key():
         resp.say("Record your monkey howl after the tone.")
         resp.record(maxLength="30", action="/hello-monkey/handle-recording/")
         return str(resp)
+    elif digit_pressed == "3":
+        return redirect("/hello-monkey/voice/")
     else:
         return redirect("/hello-monkey/")
+
 
 @application.route("/hello-monkey/handle-recording/", methods=['GET', 'POST'])
 def handle_recording():
@@ -55,14 +64,28 @@ def handle_recording():
         resp.say("An error has occurred.  Goodbye.")
     return str(resp)
 
+
+@application.route('/hello-monkey/voice/', methods=['GET', 'POST'])
+def voice():
+    dest_number = request.values.get('PhoneNumber', None)
+    resp = Response()
+    with resp.dial(callerId=caller_id) as r:
+        if dest_number and re.search(r'^\d{11}$', dest_number):
+            r.number(dest_number)
+        else:
+            r.client(default_client)
+    return str(resp)
+
+
 @application.route("/hello-monkey/client/", methods=['GET', 'POST'])
 def client():
     """Respond to incoming requests"""
-    application_sid = 'APabe7650f654fc34655fc81ae71caa3ff'
     capability = TwilioCapability(account_sid, auth_token)
     capability.allow_client_outgoing(application_sid)
+    capability.allow_client_incoming("jenny")
     token = capability.generate()
     return render_template('client.html', token=token)
+
 
 if __name__ == "__main__":
     application.run(debug=True, host='0.0.0.0')
