@@ -1,8 +1,10 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 from twilio.twiml import Response
-from secret import phone_brit, phone_dave, phone_rob, phone_kenna
+from twilio.util import TwilioCapability
+from secret import phone_brit, phone_dave, phone_rob, phone_kenna, account_sid, auth_token
 
 application = Flask(__name__)
+
 
 @application.route('/hello-monkey/', methods=['GET', 'POST'])
 def hello_monkey():
@@ -52,6 +54,15 @@ def handle_recording():
     else:
         resp.say("An error has occurred.  Goodbye.")
     return str(resp)
+
+@application.route("/hello-monkey/client/", methods=['GET', 'POST'])
+def client():
+    """Respond to incoming requests"""
+    application_sid = 'APabe7650f654fc34655fc81ae71caa3ff'
+    capability = TwilioCapability(account_sid, auth_token)
+    capability.allow_client_outgoing(application_sid)
+    token = capability.generate()
+    return render_template('client.html', token=token)
 
 if __name__ == "__main__":
     application.run(debug=True, host='0.0.0.0')
