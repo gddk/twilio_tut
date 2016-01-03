@@ -18,6 +18,10 @@
     Twilio.Device.ready(function (device) {
         $("#log").text("Ready");
     });
+
+    Twilio.Device.ready(function (device) {
+        $("#log").text("Client '{{ client_name }}' is ready");
+    });
  
     /* Report any errors on the screen */
     Twilio.Device.error(function (error) {
@@ -39,6 +43,20 @@
         // accept the incoming connection and start two-way audio
         conn.accept();
     });
+
+    Twilio.Device.presence(function (pres) {
+        if (pres.available) {
+          // create an item for the client that became available
+          $("<li>", {id: pres.from, text: pres.from}).click(function () {
+            $("#number").val(pres.from);
+            call();
+          }).prependTo("#people");
+        }
+        else {
+          // find the item by client name and remove it
+          $("#" + pres.from).remove();
+        }
+      });
  
     /* Connect to Twilio when we call this function. */
     function call() {
@@ -61,5 +79,7 @@
     <input type="text" id="number" name="number" placeholder="Enter a phone number to call"/>
   
     <div id="log">Loading pigeons...</div>
+
+    <ul id="people" />
   </body>
 </html>

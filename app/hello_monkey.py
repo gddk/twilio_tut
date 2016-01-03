@@ -73,18 +73,19 @@ def voice():
         if dest_number and re.search(r'^\d{11}$', dest_number):
             r.number(dest_number)
         else:
-            r.client(default_client)
+            r.client(dest_number)
     return str(resp)
 
 
 @application.route("/hello-monkey/client/", methods=['GET', 'POST'])
 def client():
     """Respond to incoming requests"""
+    client_name = request.values.get('client', None) or "jenny"
     capability = TwilioCapability(account_sid, auth_token)
     capability.allow_client_outgoing(application_sid)
-    capability.allow_client_incoming("jenny")
+    capability.allow_client_incoming(client_name)
     token = capability.generate()
-    return render_template('client.html', token=token)
+    return render_template('client.html', token=token, client_name=client_name)
 
 
 if __name__ == "__main__":
