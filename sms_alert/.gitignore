@@ -1,0 +1,4 @@
+config/administrators.json
+.venv-sms_alert
+config/secret.ini
+db.sqlite3
