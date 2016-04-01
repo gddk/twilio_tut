@@ -73,7 +73,7 @@ def voice():
         if dest_number and re.search(r'^\d{11}$', dest_number):
             r.number(dest_number)
         else:
-            r.client(dest_number)
+            r.client('jenny')
     return str(resp)
 
 
