@@ -105,9 +105,9 @@ def vphone():
     if request.values.get('tell_code'):
         numbers = ', '.join(list(request.values.get('tell_code')))
         resp = Response()
-        resp.say("Hello, your confirmation code is {}" + numbers)
-        resp.say("Repeating, your confirmation code is {}" + numbers)
-        resp.say("One last time, your confirmation code is {}" + numbers)
+        resp.say("Hello, your confirmation code is " + numbers)
+        resp.say("Repeating, your confirmation code is " + numbers)
+        resp.say("One last time, your confirmation code is " + numbers)
         resp.say("Goodbye")
         return str(resp)
 
