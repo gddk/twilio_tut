@@ -144,18 +144,25 @@ def vphone():
             with open('/tmp/{}'.format(uuid), 'w') as f:
                 f.write('{}'.format(code))
             client = TwilioRestClient(account_sid, auth_token)
-            if action_type == 'call':
-                call = client.calls.create(
-                    to='+1{}'.format(phone),
-                    from_=phone_m,
-                    url='{}/hello-monkey/vphone/?tell_code={}'.format(api_url, code)
-                )
-            else:
-                message = client.messages.create(
-                    to='+1{}'.format(phone),
-                    from_=phone_m,
-                    body='Your phone verification code: {}'.format(code)
-                )
+            try:
+                if action_type == 'call':
+                    client.calls.create(
+                        to='+1{}'.format(phone),
+                        from_=phone_m,
+                        url='{}/hello-monkey/vphone/?tell_code={}'.format(api_url, code)
+                    )
+                else:
+                    client.messages.create(
+                        to='+1{}'.format(phone),
+                        from_=phone_m,
+                        body='Your phone verification code: {}'.format(code)
+                    )
+            except Exception as e:
+                context['error'] = ('Number is unverified at Twilio. Trial accounts cannot send '
+                                    'messages to unverified numbers. verify numbers at '
+                                    'twilio.com/user/account/phone-numbers/verified or purchase a '
+                                    'Twilio number to send messages to unverified numbers')
+
     return render_template('vphone.html', **context)
 
 
